@@ -1,0 +1,384 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Symbi-Utsav 2026 Scanner</title>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 16px;
+  font-family: Arial, sans-serif;
+  background: #eef2f7;
+  color: #172554;
+}
+
+.header {
+  background: #172554;
+  color: white;
+  padding: 22px 12px;
+  border-radius: 14px;
+  text-align: center;
+}
+
+.header h1 { margin: 0 0 8px; }
+.header p { margin: 5px; }
+
+.container {
+  background: white;
+  max-width: 500px;
+  margin: 18px auto;
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px #0001;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+select, button {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 12px;
+  border-radius: 9px;
+  font-size: 16px;
+}
+
+select {
+  border: 1px solid #cbd5e1;
+  background: white;
+}
+
+button {
+  border: none;
+  background: #1d4ed8;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: .5;
+}
+
+.stop {
+  background: #64748b;
+}
+
+#reader {
+  width: 100%;
+  margin: 12px auto;
+}
+
+#result {
+  display: none;
+  padding: 22px 12px;
+  margin-top: 15px;
+  border-radius: 12px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.approved {
+  display: block !important;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.rejected {
+  display: block !important;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.duplicate {
+  display: block !important;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.loading {
+  display: block !important;
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status {
+  font-size: 27px;
+  font-weight: bold;
+}
+
+.small {
+  color: #64748b;
+  font-size: 12px;
+  text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <h1>SYMBI-UTSAV 2026</h1>
+  <h3>STUDENT ENTRY SCANNER</h3>
+  <p>Official Barcode Verification System</p>
+</div>
+
+<div class="container">
+
+  <label for="counter">Select Entry Counter</label>
+
+  <select id="counter">
+    <option value="Counter 1">Counter 1</option>
+    <option value="Counter 2">Counter 2</option>
+    <option value="Counter 3">Counter 3</option>
+    <option value="Counter 4">Counter 4</option>
+    <option value="Counter 5">Counter 5</option>
+  </select>
+
+  <button id="startBtn" onclick="startScanner()">
+    START BARCODE SCANNER
+  </button>
+
+  <button class="stop" onclick="stopScanner()">
+    STOP SCANNER
+  </button>
+
+  <div id="reader"></div>
+
+  <div id="result"></div>
+
+  <p id="status" class="small">
+    Scanner not started
+  </p>
+
+</div>
+
+<script>
+
+// ======================================
+// CONFIGURATION - CHANGE THESE TWO VALUES
+// ======================================
+
+const API_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_EXEC_URL";
+
+const API_KEY = "CHANGE_TO_YOUR_OWN_RANDOM_SECRET_2026";
+
+// ======================================
+
+let scanner = null;
+let running = false;
+let busy = false;
+let requestNumber = 0;
+
+function showResult(status, message, details = {}) {
+
+  const result = document.getElementById("result");
+
+  let css = "rejected";
+
+  if (status === "APPROVED") css = "approved";
+  if (status === "DUPLICATE") css = "duplicate";
+  if (status === "VERIFYING") css = "loading";
+
+  result.className = css;
+
+  result.innerHTML = `
+    <div class="status">${escapeHTML(status)}</div>
+    <h2>${escapeHTML(details.name || "")}</h2>
+    <p>${escapeHTML(message)}</p>
+    <p>Barcode: ${escapeHTML(details.barcode || "")}</p>
+    <p>Counter: ${escapeHTML(details.counter || "")}</p>
+    <p>Date: ${escapeHTML(details.date || "")}</p>
+    <p>Time: ${escapeHTML(details.time || "")}</p>
+  `;
+
+  result.style.display = "block";
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, c => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[c]);
+}
+
+async function startScanner() {
+
+  if (running) return;
+
+  if (!API_URL.startsWith("https://script.google.com/")) {
+    alert("Please configure the Google Apps Script URL first.");
+    return;
+  }
+
+  scanner = new Html5Qrcode("reader", {
+    formatsToSupport: [
+      Html5QrcodeSupportedFormats.CODE_128
+    ],
+    verbose: false
+  });
+
+  try {
+
+    await scanner.start(
+      { facingMode: "environment" },
+      {
+        fps: 10,
+        qrbox: { width: 280, height: 120 }
+      },
+      onScanSuccess
+    );
+
+    running = true;
+
+    document.getElementById("status").innerText =
+      "CAMERA ACTIVE - READY TO SCAN";
+
+    document.getElementById("startBtn").disabled = true;
+
+  } catch (error) {
+
+    document.getElementById("status").innerText =
+      "CAMERA ERROR: " + error;
+
+    alert(
+      "Camera could not start. Allow camera permission in Chrome and open the HTTPS website directly."
+    );
+
+  }
+}
+
+function onScanSuccess(decodedText) {
+
+  if (busy) return;
+
+  busy = true;
+
+  const barcode = decodedText.trim();
+
+  scanner.pause(true);
+
+  showResult(
+    "VERIFYING",
+    "Checking student registration..."
+  );
+
+  document.getElementById("status").innerText =
+    "Verifying barcode...";
+
+  verifyBarcode(barcode);
+}
+
+function verifyBarcode(barcode) {
+
+  const callbackName =
+    "cb_" + Date.now() + "_" + (++requestNumber);
+
+  const script = document.createElement("script");
+
+  let finished = false;
+
+  const timeout = setTimeout(() => {
+    finish({
+      status: "ERROR",
+      message: "Server timeout. Please try again."
+    });
+  }, 20000);
+
+  function finish(data) {
+
+    if (finished) return;
+    finished = true;
+
+    clearTimeout(timeout);
+
+    delete window[callbackName];
+    script.remove();
+
+    showResult(
+      data.status || "ERROR",
+      data.message || "Verification failed",
+      data
+    );
+
+    document.getElementById("status").innerText =
+      data.status === "APPROVED"
+        ? "ENTRY APPROVED"
+        : "SCAN RESULT: " + (data.status || "ERROR");
+
+    setTimeout(() => {
+      busy = false;
+
+      if (running) {
+        scanner.resume();
+        document.getElementById("status").innerText =
+          "READY FOR NEXT STUDENT";
+      }
+
+    }, 1800);
+  }
+
+  window[callbackName] = finish;
+
+  const params = new URLSearchParams({
+    action: "verify",
+    barcode: barcode,
+    counter: document.getElementById("counter").value,
+    key: API_KEY,
+    callback: callbackName
+  });
+
+  script.src = API_URL + "?" + params.toString();
+
+  script.onerror = () => {
+    finish({
+      status: "ERROR",
+      message: "Cannot connect to Google Sheets server"
+    });
+  };
+
+  document.body.appendChild(script);
+}
+
+async function stopScanner() {
+
+  if (!scanner || !running) return;
+
+  try {
+
+    await scanner.stop();
+
+    running = false;
+    busy = false;
+
+    document.getElementById("startBtn").disabled = false;
+
+    document.getElementById("status").innerText =
+      "SCANNER STOPPED";
+
+  } catch (error) {
+
+    document.getElementById("status").innerText =
+      "Unable to stop scanner: " + error;
+
+  }
+}
+
+</script>
+
+</body>
+</html>
