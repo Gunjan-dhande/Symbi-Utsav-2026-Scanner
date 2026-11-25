@@ -1,9 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>Symbi-Utsav 2026 Scanner</title>
 
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -11,105 +11,63 @@
 <style>
 * { box-sizing: border-box; }
 
-html, body {
+body {
   margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  padding: 16px;
   font-family: Arial, sans-serif;
   background: #eef2f7;
   color: #172554;
 }
 
-body {
-  height: 100vh;
-  height: 100dvh;
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
 .header {
-  flex: 0 0 auto;
-  text-align: center;
   background: #172554;
   color: white;
-  padding: 7px;
-  border-radius: 9px;
+  padding: 22px 12px;
+  border-radius: 14px;
+  text-align: center;
 }
 
-.header h1 {
-  font-size: 18px;
-  margin: 0 0 3px;
-}
-
-.header h3 {
-  font-size: 11px;
-  margin: 0;
-}
+.header h1 { margin: 0 0 8px; }
+.header p { margin: 5px; }
 
 .container {
-  flex: 1;
-  min-height: 0;
-  width: 100%;
-  max-width: 700px;
-  margin: auto;
-  padding: 7px;
   background: white;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  overflow: hidden;
-}
-
-.control-row {
-  display: flex;
-  align-items: end;
-  gap: 7px;
-}
-
-.counter-box {
-  flex: 1;
-  min-width: 0;
+  max-width: 500px;
+  margin: 18px auto;
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px #0001;
 }
 
 label {
   display: block;
-  font-size: 11px;
   font-weight: bold;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+select, button {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 12px;
+  border-radius: 9px;
+  font-size: 16px;
 }
 
 select {
-  width: 100%;
-  height: 38px;
-  padding: 5px 9px;
   border: 1px solid #cbd5e1;
-  border-radius: 7px;
   background: white;
-  font-size: 14px;
-}
-
-.buttons {
-  display: flex;
-  gap: 7px;
 }
 
 button {
-  flex: 1;
-  height: 39px;
-  border: 0;
-  border-radius: 7px;
+  border: none;
   background: #1d4ed8;
   color: white;
-  font-size: 12px;
   font-weight: bold;
+  cursor: pointer;
 }
 
 button:disabled {
-  opacity: .55;
+  opacity: .5;
 }
 
 .stop {
@@ -118,133 +76,51 @@ button:disabled {
 
 #reader {
   width: 100%;
-  height: clamp(100px, 19dvh, 155px);
-  flex: 0 0 auto;
-  overflow: hidden;
-  border-radius: 8px;
-  background: #111827;
-}
-
-#reader video {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: contain !important;
-}
-
-#reader__dashboard,
-#reader__header_message {
-  display: none !important;
+  margin: 12px auto;
 }
 
 #result {
-  flex: 1;
-  min-height: 65px;
-  overflow: auto;
-  padding: 8px;
-  margin: 0;
-  border-radius: 8px;
+  display: none;
+  padding: 22px 12px;
+  margin-top: 15px;
+  border-radius: 12px;
   text-align: center;
-  background: #f1f5f9;
-  color: #334155;
   overflow-wrap: anywhere;
 }
 
-#result h2 {
-  font-size: 17px;
-  margin: 3px 0;
-}
-
-#result p {
-  display: inline-block;
-  font-size: 11px;
-  margin: 3px 5px;
-}
-
-.status {
-  font-size: 20px;
-  font-weight: bold;
-}
-
 .approved {
-  background: #dcfce7 !important;
-  color: #166534 !important;
+  display: block !important;
+  background: #dcfce7;
+  color: #166534;
 }
 
 .rejected {
-  background: #fee2e2 !important;
-  color: #991b1b !important;
+  display: block !important;
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .duplicate {
-  background: #fef3c7 !important;
-  color: #92400e !important;
+  display: block !important;
+  background: #fef3c7;
+  color: #92400e;
 }
 
 .loading {
-  background: #dbeafe !important;
-  color: #1e40af !important;
+  display: block !important;
+  background: #dbeafe;
+  color: #1e40af;
 }
 
-#status {
-  flex: 0 0 auto;
-  text-align: center;
-  font-size: 10px;
+.status {
+  font-size: 27px;
+  font-weight: bold;
+}
+
+.small {
   color: #64748b;
-  margin: 0;
-  padding: 2px;
-}
-
-@media (orientation: landscape) {
-  body {
-    padding: 4px;
-    gap: 4px;
-  }
-
-  .header {
-    padding: 4px;
-  }
-
-  .header h1 { font-size: 15px; }
-  .header h3 { font-size: 10px; }
-
-  .container {
-    max-width: 950px;
-    display: grid;
-    grid-template-columns: 1fr 1.4fr;
-    grid-template-rows: auto auto 1fr auto;
-    gap: 5px;
-    padding: 6px;
-  }
-
-  .control-row {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .buttons {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
-  #reader {
-    grid-column: 2;
-    grid-row: 1 / 4;
-    width: 100%;
-    height: 100%;
-    min-height: 100px;
-    max-height: 230px;
-  }
-
-  #result {
-    grid-column: 1 / 3;
-    grid-row: 3;
-    min-height: 50px;
-  }
-
-  #status {
-    grid-column: 1 / 3;
-    grid-row: 4;
-  }
+  font-size: 12px;
+  text-align: center;
 }
 </style>
 </head>
@@ -254,55 +130,48 @@ button:disabled {
 <div class="header">
   <h1>SYMBI-UTSAV 2026</h1>
   <h3>STUDENT ENTRY SCANNER</h3>
+  <p>Official Barcode Verification System</p>
 </div>
 
 <div class="container">
 
-  <div class="control-row">
-    <div class="counter-box">
-      <label for="counter">SELECT ENTRY COUNTER</label>
-      <select id="counter">
-        <option value="Counter 1">Counter 1</option>
-        <option value="Counter 2">Counter 2</option>
-        <option value="Counter 3">Counter 3</option>
-        <option value="Counter 4">Counter 4</option>
-        <option value="Counter 5">Counter 5</option>
-      </select>
-    </div>
-  </div>
+  <label for="counter">Select Entry Counter</label>
 
-  <div class="buttons">
-    <button id="startBtn" onclick="startScanner()">
-      START SCANNER
-    </button>
+  <select id="counter">
+    <option value="Counter 1">Counter 1</option>
+    <option value="Counter 2">Counter 2</option>
+    <option value="Counter 3">Counter 3</option>
+    <option value="Counter 4">Counter 4</option>
+    <option value="Counter 5">Counter 5</option>
+  </select>
 
-    <button class="stop" id="stopBtn" onclick="stopScanner()">
-      STOP SCANNER
-    </button>
-  </div>
+  <button id="startBtn" onclick="startScanner()">
+    START BARCODE SCANNER
+  </button>
+
+  <button class="stop" onclick="stopScanner()">
+    STOP SCANNER
+  </button>
 
   <div id="reader"></div>
 
-  <div id="result">
-    <div class="status">READY TO SCAN</div>
-    <p>Scan student barcode for entry verification.</p>
-  </div>
+  <div id="result"></div>
 
-  <p id="status">SCANNER NOT STARTED</p>
+  <p id="status" class="small">
+    Scanner not started
+  </p>
 
 </div>
 
 <script>
 
 // ======================================
-// CONFIGURATION
+// CONFIGURATION - CHANGE THESE TWO VALUES
 // ======================================
 
-const API_URL = "https://script.google.com/macros/s/AKfycbzr7mC-Pan5SlWPjaooOlfrhJTjUjAmsonDlzXQnnoYLMy3u4PYHF7U1nsK--Gw7lbbfA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzX1Qo23eIE5MoRZzTiJUlqY6ZD1XNtrCtHKo_bjPLhLR-T7Tlx9hbYN_bQJV8c-66afw/exec";
 
-// Replace with your new random secret.
-// Must match the Apps Script CONFIG.API_KEY.
-const API_KEY = "REPLACE_WITH_YOUR_NEW_RANDOM_SECRET";
+const API_KEY = "CHANGE_TO_YOUR_OWN_RANDOM_SECRET_2026";
 
 // ======================================
 
@@ -310,17 +179,6 @@ let scanner = null;
 let running = false;
 let busy = false;
 let requestNumber = 0;
-let scanTimer = null;
-
-function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g, c => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[c]);
-}
 
 function showResult(status, message, details = {}) {
 
@@ -343,6 +201,18 @@ function showResult(status, message, details = {}) {
     <p>Date: ${escapeHTML(details.date || "")}</p>
     <p>Time: ${escapeHTML(details.time || "")}</p>
   `;
+
+  result.style.display = "block";
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, c => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[c]);
 }
 
 async function startScanner() {
@@ -350,36 +220,28 @@ async function startScanner() {
   if (running) return;
 
   if (!API_URL.startsWith("https://script.google.com/")) {
-    alert("Configure Google Apps Script URL.");
+    alert("Please configure the Google Apps Script URL first.");
     return;
   }
 
-  document.getElementById("startBtn").disabled = true;
-
   scanner = new Html5Qrcode("reader", {
-    formatsToSupport: [
-      Html5QrcodeSupportedFormats.CODE_128
-    ],
-    verbose: false
-  });
+  formatsToSupport: [
+    Html5QrcodeSupportedFormats.CODE_128,
+    Html5QrcodeSupportedFormats.CODE_39,
+    Html5QrcodeSupportedFormats.EAN_13
+  ],
+  verbose: true
+});
 
   try {
-
-    const width = Math.max(
-      180,
-      Math.floor(document.getElementById("reader").clientWidth * 0.90)
-    );
 
     await scanner.start(
       { facingMode: "environment" },
       {
-        fps: 15,
-        qrbox: {
-          width: width,
-          height: 100
-        },
-        disableFlip: false
-      },
+  fps: 15,
+  aspectRatio: 1.777,
+  disableFlip: false
+  },
       onScanSuccess
     );
 
@@ -388,37 +250,37 @@ async function startScanner() {
     document.getElementById("status").innerText =
       "CAMERA ACTIVE - READY TO SCAN";
 
+    document.getElementById("startBtn").disabled = true;
+
   } catch (error) {
 
-    document.getElementById("startBtn").disabled = false;
-
     document.getElementById("status").innerText =
-      "CAMERA ERROR";
+      "CAMERA ERROR: " + error;
 
-    alert("Camera error: " + error);
+    alert(
+      "Camera could not start. Allow camera permission in Chrome and open the HTTPS website directly."
+    );
 
   }
 }
 
 function onScanSuccess(decodedText) {
 
-  if (busy || !running) return;
-
-  const barcode = decodedText.trim().toUpperCase();
-
-  if (!barcode) return;
+  if (busy) return;
 
   busy = true;
+
+  const barcode = decodedText.trim();
+
   scanner.pause(true);
 
   showResult(
     "VERIFYING",
-    "Checking student registration...",
-    { barcode: barcode }
+    "Checking student registration..."
   );
 
   document.getElementById("status").innerText =
-    "VERIFYING BARCODE...";
+    "Verifying barcode...";
 
   verifyBarcode(barcode);
 }
@@ -432,12 +294,19 @@ function verifyBarcode(barcode) {
 
   let finished = false;
 
+  const timeout = setTimeout(() => {
+    finish({
+      status: "ERROR",
+      message: "Server timeout. Please try again."
+    });
+  }, 20000);
+
   function finish(data) {
 
     if (finished) return;
     finished = true;
 
-    clearTimeout(scanTimer);
+    clearTimeout(timeout);
 
     delete window[callbackName];
     script.remove();
@@ -451,30 +320,21 @@ function verifyBarcode(barcode) {
     document.getElementById("status").innerText =
       data.status === "APPROVED"
         ? "ENTRY APPROVED"
-        : "RESULT: " + (data.status || "ERROR");
+        : "SCAN RESULT: " + (data.status || "ERROR");
 
     setTimeout(() => {
-
       busy = false;
 
-      if (running && scanner) {
+      if (running) {
         scanner.resume();
         document.getElementById("status").innerText =
           "READY FOR NEXT STUDENT";
       }
 
-    }, 1200);
+    }, 1800);
   }
 
   window[callbackName] = finish;
-
-  scanTimer = setTimeout(() => {
-    finish({
-      status: "ERROR",
-      message: "Server timeout. Please try again.",
-      barcode: barcode
-    });
-  }, 20000);
 
   const params = new URLSearchParams({
     action: "verify",
@@ -489,8 +349,7 @@ function verifyBarcode(barcode) {
   script.onerror = () => {
     finish({
       status: "ERROR",
-      message: "Google Sheets connection failed",
-      barcode: barcode
+      message: "Cannot connect to Google Sheets server"
     });
   };
 
@@ -499,15 +358,11 @@ function verifyBarcode(barcode) {
 
 async function stopScanner() {
 
-  clearTimeout(scanTimer);
-
-  if (!scanner) return;
+  if (!scanner || !running) return;
 
   try {
 
-    if (running) {
-      await scanner.stop();
-    }
+    await scanner.stop();
 
     running = false;
     busy = false;
@@ -520,7 +375,7 @@ async function stopScanner() {
   } catch (error) {
 
     document.getElementById("status").innerText =
-      "STOP ERROR: " + error;
+      "Unable to stop scanner: " + error;
 
   }
 }
